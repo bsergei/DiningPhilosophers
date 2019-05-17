@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
-using DiningPhilosophers.Core;
-using DiningPhilosophers.Factories;
-using DiningPhilosophers.Log;
-using DiningPhilosophers.Model;
+using System.Threading.Tasks;
+using DiningPhilosophers.Core.Model;
+using DiningPhilosophers.Sim.Model;
+using DiningPhilosophers.Sim.Repositories;
+using DiningPhilosophers.Sim.Services;
 
 namespace DiningPhilosophers
 {
@@ -22,31 +24,78 @@ namespace DiningPhilosophers
         public static void Main(string[] args)
         {
             // Choice factory.
-            IDomainFactory philosopherFactory = ChoicePhilosopherFactory();
-            if (philosopherFactory == null)
+            var tableType = ChoiceTable();
+            if (tableType == null)
             {
                 return;
             }
 
-            // Create gang of Philosophers.
-            var cancellationTokenSource = new CancellationTokenSource();
-            Philosopher[] philosophers = philosopherFactory.CreateDiningPhilosophers(PhilosophersCount);
-            var simulationLog = new SimulationLog(philosophers, cancellationTokenSource.Token, SimulationTimeSeconds);
-            
-            // Run Philosophers.
-            foreach (Philosopher philosopher in philosophers)
-            {
-                var runner = new PhilosopherRunner(philosopher);
-                runner.Start(cancellationTokenSource.Token, simulationLog);
-            }
-
-            // Log and wait necessary simulation time.
-            Simulate(cancellationTokenSource, simulationLog);
+            Simulate(tableType.Value, PhilosophersCount, SimulationTimeSeconds);
         }
 
-        private static IDomainFactory ChoicePhilosopherFactory()
+        private static void Simulate(TableType tableType, int count, int seconds)
         {
-            IDomainFactory factory = null;
+            Console.WriteLine($"Simulating {tableType}... Press ENTER to exit.");
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                var task = RunSimulation(tableType, count, seconds, cts.Token);
+
+                Console.ReadLine();
+                cts.Cancel();
+
+                task.Wait(CancellationToken.None);
+            }
+        }
+
+        private static async Task RunSimulation(TableType tableType, int count, int seconds, CancellationToken cancellationToken)
+        {
+            using (var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(seconds)))
+            {
+                using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken))
+                {
+                    var tableId = Guid.NewGuid();
+                    IStateRepository stateRepository = new StateRepository();
+                    ITableService tableService = new TableService(() => new ReportingService(stateRepository), TableTypeExtensions.CreateDomainFactory);
+                    
+                    await tableService.Run(tableId, tableType, count, cancellationTokenSource.Token);
+
+                    StateDto[] stateDtos = await stateRepository.Get(tableId);
+                    PrintResult(stateDtos);
+                }
+            }
+        }
+
+        private static void PrintResult(StateDto[] stateDtos)
+        {
+            if (stateDtos.Any(_ => _.IsDeadlockDetected))
+            {
+                Console.WriteLine("!!! DEADLOCK detected.");
+            }
+
+            Console.WriteLine($"Stats:");
+
+            var ultimateTotal = new TotalStats();
+
+            foreach (var p in stateDtos.OrderBy(_ => _.PhilosopherId))
+            {
+                var t = p.TotalStats;
+
+                Console.WriteLine($"Philosopher #{p.PhilosopherId.ToString().PadLeft(2)}, {t}");
+
+                ultimateTotal.PickUpForksTime += t.PickUpForksTime;
+                ultimateTotal.PutDownForksTime += t.PutDownForksTime;
+                ultimateTotal.EatSpaghettiTime += t.EatSpaghettiTime;
+                ultimateTotal.ThinkTime += t.ThinkTime;
+                ultimateTotal.TotalTime += t.TotalTime;
+                ultimateTotal.TotalCycles += t.TotalCycles;
+            }
+
+            Console.WriteLine($"TOTAL: {ultimateTotal}");
+        }
+
+        private static TableType? ChoiceTable()
+        {
+            TableType? tableType = null;
 
             Console.WriteLine("Type 0 to exit");
             Console.WriteLine("---------------------------------");
@@ -57,7 +106,7 @@ namespace DiningPhilosophers
             Console.WriteLine("Type 5 for Chandy-Misra");
 
             bool isExit = false;
-            while (factory == null && !isExit)
+            while (tableType == null && !isExit)
             {
                 var key = Console.ReadKey();
                 switch (key.KeyChar)
@@ -67,68 +116,29 @@ namespace DiningPhilosophers
                         break;
 
                     case '1':
-                        factory = new ProblemFactory();
+                        tableType = TableType.Problem;
                         break;
 
                     case '2':
-                        factory = new DijkstraFactory();
+                        tableType = TableType.Dijkstra;
                         break;
 
                     case '3':
-                        factory = new ArbitraryFactory();
+                        tableType = TableType.Arbitrary;
                         break;
 
                     case '4':
-                        factory = new AgileFactory(); 
+                        tableType = TableType.Agile;
                         break;
 
                     case '5':
-                        factory = new ChandyMisraFactory();
+                        tableType = TableType.ChandyMisra;
                         break;
                 }
             }
+
             Console.WriteLine();
-            return factory;
-        }
-
-        private static void Simulate(
-            CancellationTokenSource cancellationTokenSource, 
-            SimulationLog simulationLog)
-        {
-            bool finished = false;
-            void Exit()
-            {
-                if (finished)
-                {
-                    return;
-                }
-
-                finished = true;
-
-                cancellationTokenSource.Cancel();
-                simulationLog.Finish();
-                simulationLog.DumpStatistics();
-
-                Environment.Exit(0);
-            }
-
-            void WaitAndExit()
-            {
-                // Wait SimulationTimeSeconds or until simulationLog.SimulationTask finished then exit.
-                simulationLog.SimulationTask.Wait(TimeSpan.FromSeconds(SimulationTimeSeconds));
-                Exit();
-            }
-
-            // Calls WaitAndExit in separate thread with highest priority.
-            Thread simulationWatcherThread = new Thread(WaitAndExit)
-            {
-                Priority = ThreadPriority.Highest,
-                IsBackground = true
-            };
-            simulationWatcherThread.Start();
-            
-            Console.ReadLine();
-            Exit();
+            return tableType;
         }
     }
 }

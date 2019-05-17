@@ -7,4 +7,8 @@
     <RootNamespace>DiningPhilosophers</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DiningPhilosophers.Sim\DiningPhilosophers.Sim.csproj" />
+  </ItemGroup>
+
 </Project>
