@@ -1,0 +1,15 @@
+.philo-details {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.elevation-wrapper {
+    flex-grow: 1;
+    margin: 10px;
+    overflow: auto;
+}
+
+.details-table {
+    height: 100%;
+}

@@ -1,0 +1,75 @@
+<div class="app">
+  <mat-toolbar color="primary">
+    <span>Dining Philosophers</span>
+  </mat-toolbar>
+  <div class="app-body">
+    <div class="table-viewer mat-elevation-z8">
+      <mat-toolbar>
+        <!-- <span class="toolbar-spacer"></span> -->
+        <button mat-raised-button (click)="addNewPhiloTable()">
+          <mat-icon>add</mat-icon> Start
+        </button>
+        <button mat-raised-button (click)="stopPhiloTable()" disabled [attr.disabled]="isSelectedRunning ? '' : null">
+          <mat-icon>stop</mat-icon> Stop
+        </button>
+        <button mat-raised-button (click)="refresh()">
+          <mat-icon>refresh</mat-icon> Refresh
+        </button>
+      </mat-toolbar>
+      <div class="jobs-table">
+        <mat-table [dataSource]="dataSource">
+          <ng-container matColumnDef="id">
+            <mat-header-cell *matHeaderCellDef>Id</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.id}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="startTime">
+            <mat-header-cell *matHeaderCellDef>Start Time</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.startTime | date:'HH:mm:ss'}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="type">
+            <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.type}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="count">
+            <mat-header-cell *matHeaderCellDef>Count</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.count | number}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="isRunning">
+            <mat-header-cell *matHeaderCellDef>Is Running</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.isRunning}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="isDeadlock">
+            <mat-header-cell *matHeaderCellDef>Is Deadlock</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.isDeadlock}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="totalCycles">
+            <mat-header-cell *matHeaderCellDef>Total Cycles</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.totalCycles | number }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="simulationTimeSeconds">
+            <mat-header-cell *matHeaderCellDef>Simulation Time</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.simulationTimeSeconds | number:'1.2-2'}}</mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;"
+            [ngClass]="{'highlight': selection.isSelected(row), 'is-run': row.isRunning, 'is-deadlock': row.isDeadlock }"
+            (click)="selection.select(row)"></mat-row>
+        </mat-table>
+      </div>
+    </div>
+    <div class="table-viewer-2">
+      <mat-tab-group #tabGroup>
+        <mat-tab label="Details Grid">
+          <app-philosophers-details *ngIf="tabGroup.selectedIndex==0" [selection]="selection.selected"></app-philosophers-details>
+        </mat-tab>
+        <mat-tab label="Events Chart">
+          <app-philosophers-chart *ngIf="tabGroup.selectedIndex==1" [selection]="selection.selected" [type]="'events'"></app-philosophers-chart>
+        </mat-tab>
+        <mat-tab label="Cycles Chart">
+          <app-philosophers-chart *ngIf="tabGroup.selectedIndex==2" [selection]="selection.selected" [type]="'cycles'"></app-philosophers-chart>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+</div>

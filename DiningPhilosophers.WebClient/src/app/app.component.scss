@@ -1,0 +1,78 @@
+table {
+    width: 100%;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.app-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbar-spacer {
+    flex: 1 1 auto;
+}
+
+.table-viewer {
+    margin: 10px;
+    padding-bottom: 10px;
+    height: 257px;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-viewer-2 {
+    margin: 10px;
+    flex-grow: 1;
+
+    .mat-tab-group {
+        height: 100%;
+    }
+
+    ::ng-deep .mat-tab-body-wrapper {
+        flex-grow: 1;
+    }
+
+    ::ng-deep .mat-tab-body {
+        position: absolute;
+    }
+}
+
+.jobs-table {
+    flex: 1;
+    overflow: auto;
+
+    .highlight {
+        background-color: rgba(0,0,0,.03);
+    }
+
+    .mat-cell, .mat-header-cell {
+        flex: 0 1 100px;
+    }
+
+    .mat-column-id {
+        flex: 0 1 300px;
+    }
+
+    .mat-column-totalCycles,
+    .mat-column-simulationTimeSeconds {
+        justify-content: flex-end;
+    }
+
+    .is-run .mat-column-isRunning  {
+        color: red;
+    }
+
+    .is-deadlock .mat-column-isDeadlock  {
+        color: red;
+    }
+}
+
+mat-toolbar button {
+    margin: 0 5px;
+}

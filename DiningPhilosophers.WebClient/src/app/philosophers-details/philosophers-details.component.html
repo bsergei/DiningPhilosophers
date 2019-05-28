@@ -1,0 +1,42 @@
+<div class="philo-details">
+  <div class="elevation-wrapper mat-elevation-z8">
+    <div class="details-table">
+      <mat-table #pTable [dataSource]="dataSource" #pSort="matSort" matSort matSortActive="id" matSortDirection="asc" >
+        <ng-container matColumnDef="id">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Id</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{element.id}}</mat-cell>
+          <mat-footer-cell *matFooterCellDef>Total</mat-footer-cell>
+        </ng-container>
+        <ng-container matColumnDef="pickUpForksTime">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Pick Up Forks</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{(element.pickUpForksTime) | percent:'2.2-2' }}</mat-cell>
+          <mat-footer-cell *matFooterCellDef>{{total?.pickUpForksTime | percent:'2.2-2'}}</mat-footer-cell>
+        </ng-container>
+        <ng-container matColumnDef="putDownForksTime">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Put Down Forks</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{(element.putDownForksTime) | percent:'2.2-2' }}</mat-cell>
+          <mat-footer-cell *matFooterCellDef>{{total?.putDownForksTime | percent:'2.2-2'}}</mat-footer-cell>
+        </ng-container>
+        <ng-container matColumnDef="eatSpaghettiTime">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Eat Spaghetti</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{(element.eatSpaghettiTime) | percent:'2.2-2' }}</mat-cell>
+          <mat-footer-cell *matFooterCellDef>{{total?.eatSpaghettiTime | percent:'2.2-2'}}</mat-footer-cell>
+        </ng-container>
+        <ng-container matColumnDef="thinkTime">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Think</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{(element.thinkTime) | percent:'2.2-2' }}</mat-cell>
+          <mat-footer-cell *matFooterCellDef>{{total?.thinkTime | percent:'2.2-2'}}</mat-footer-cell>
+        </ng-container>
+        <ng-container matColumnDef="totalCycles">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Total Cycles</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{element.totalCycles | number }}</mat-cell>
+          <mat-footer-cell *matFooterCellDef>{{total?.totalCycles | number }}</mat-footer-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        <mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"></mat-footer-row>
+      </mat-table>
+    </div>
+  </div>
+</div>
