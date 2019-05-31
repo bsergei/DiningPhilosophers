@@ -10,7 +10,7 @@ export class RealtimeService {
 
     public getStateDtoStream(): Observable<StateDto> {
         return Observable.create(observer => {
-            const ws = new WebSocket(`wss://${environment.apiServer}/api/realtime`);
+            const ws = new WebSocket(`${environment.apiServerWsScheme}://${environment.apiServer}/api/realtime`);
             let pingTask: any;
 
             this.zone.runOutsideAngular(() => {

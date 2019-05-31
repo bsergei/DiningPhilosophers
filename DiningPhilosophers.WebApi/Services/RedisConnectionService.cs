@@ -8,11 +8,13 @@ namespace DiningPhilosophers.WebApi.Services
 {
     public class RedisConnectionService : IRedisConnectionService, IDisposable
     {
+        private readonly IConfigurationService configurationService_;
         private readonly object sync_ = new object();
         private volatile Lazy<ConnectionMultiplexer> connection_;
 
-        public RedisConnectionService()
+        public RedisConnectionService(IConfigurationService configurationService)
         {
+            configurationService_ = configurationService;
             Initialize();
         }
 
@@ -160,7 +162,7 @@ namespace DiningPhilosophers.WebApi.Services
                 connection_ = new Lazy<ConnectionMultiplexer>(
                     () =>
                     {
-                        var connectionMultiplexer = ConnectionMultiplexer.Connect(ConfigurationOptions.Parse("localhost:6379"));
+                        var connectionMultiplexer = ConnectionMultiplexer.Connect(ConfigurationOptions.Parse(configurationService_.RedisHost));
                         return connectionMultiplexer;
                     },
                     LazyThreadSafetyMode.ExecutionAndPublication);

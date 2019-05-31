@@ -4,7 +4,9 @@
 
 export const environment = {
   production: false,
-  apiServer: 'localhost:5001'
+  apiServer: 'localhost:5001',
+  apiServerScheme: 'https',
+  apiServerWsScheme: 'wss'
 };
 
 /*

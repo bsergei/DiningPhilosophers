@@ -10,7 +10,7 @@ export class PhiloTableService {
     }
 
     public startTable(tableType: string, philosophersCount?: number, simulationTimeSeconds?: number): Promise<string> {
-        return this.http.get<string>(`https://${environment.apiServer}/api/table/start/${tableType}`, {
+        return this.http.get<string>(`${environment.apiServerScheme}://${environment.apiServer}/api/table/start/${tableType}`, {
             params: {
                 simulationTime: simulationTimeSeconds === undefined ? undefined : simulationTimeSeconds.toString(),
                 philosophersCount: philosophersCount === undefined ? undefined : philosophersCount.toString()
@@ -21,12 +21,12 @@ export class PhiloTableService {
 
     public stopTable(tableId: string) {
         return this.http
-            .get<string>(`https://${environment.apiServer}/api/table/stop/${tableId}`)
+            .get<string>(`${environment.apiServerScheme}://${environment.apiServer}/api/table/stop/${tableId}`)
             .toPromise();
     }
 
     public async getStateDtos() {
-        const url = `https://${environment.apiServer}/api/tablestate`;
+        const url = `${environment.apiServerScheme}://${environment.apiServer}/api/tablestate`;
         const dtos = await this.http.get<StateDto[]>(url).toPromise();
         return dtos.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
     }

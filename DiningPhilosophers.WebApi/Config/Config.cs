@@ -14,6 +14,8 @@ namespace DiningPhilosophers.WebApi.Config
     {
         public static void AddDiningPhilosophersDomain(this IServiceCollection services)
         {
+            services.AddSingleton<IConfigurationService, EnvConfigurationService>();
+
             services.AddSingleton<IRedisConnectionService, RedisConnectionService>();
             services.AddTransient<IDistributedPubSubService, DistributedPubSubService>();
             services.AddTransient(typeof(IWebSocketRealtimeService<>), typeof(WebSocketRealtimeService<>));

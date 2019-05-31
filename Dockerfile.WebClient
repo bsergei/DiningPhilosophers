@@ -1,0 +1,18 @@
+FROM node:10.16.0 AS build
+
+WORKDIR /src
+COPY ["./DiningPhilosophers.WebClient/", "DiningPhilosophers.WebClient/"]
+
+WORKDIR "/src/DiningPhilosophers.WebClient"
+RUN npm install
+
+# build
+ARG configuration=production
+ENV PATH /src/DiningPhilosophers.WebClient/node_modules/.bin:$PATH
+RUN ng build --configuration=$configuration
+
+FROM nginx:1.15 AS final
+
+COPY --from=build /src/DiningPhilosophers.WebClient/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /src/DiningPhilosophers.WebClient/dist/philo-web/ /usr/share/nginx/html/
+
