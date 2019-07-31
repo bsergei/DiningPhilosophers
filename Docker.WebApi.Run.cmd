@@ -1,1 +1,0 @@
-docker run --rm -p 5000:80 -e RedisHost=host.docker.internal:6379 --name dp_webapi -d dp/webapi

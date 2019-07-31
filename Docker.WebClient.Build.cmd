@@ -1,1 +1,0 @@
-docker build -f Dockerfile.WebClient -t dp/webclient:latest --build-arg configuration=docker_local .

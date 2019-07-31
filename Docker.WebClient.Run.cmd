@@ -1,1 +1,0 @@
-docker run --rm --name dp_webclient -p 80:80 -d dp/webclient

@@ -1,1 +1,0 @@
-docker build -f Dockerfile.WebApi -t dp/webapi:latest .
