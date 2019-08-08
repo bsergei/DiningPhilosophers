@@ -1,0 +1,1 @@
+docker-compose up -d --scale dp_webapi=3
